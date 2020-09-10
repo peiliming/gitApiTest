@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>GitHub Repos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+</head>
+<body>
+GitHub username:
+<input type="text" id="username"/>
+<button onclick="loadRepos()">Load Repos</button>
+<ul id="repos">
+    <li>
+        <a href="#">
+            repo.name
+        </a>
+    </li>
+</ul>
+
+
+GitHub username:
+<input type="text" id="username" value="nakov" /> <br>
+Repo: <input type="text" id="repo" value="nakov.io.cin" />
+<button onclick="loadCommits()">Load Commits</button>
+<ul id="commits"></ul>
+
+
+<script>
+    function loadRepos() {
+        $("#repos").empty();
+        let url = "https://api.github.com/users/" +
+                $("#username").val() + "/repos";
+        $.ajax({
+            url,
+            success: displayRepos,
+            error: displayError
+        });
+        function displayRepos(respos) {
+            for (let repo of respos) {
+                let link = $('<a>').text(repo.full_name);
+                link.attr('href', repo.html_url);
+                $("#repos").append($('<li>').append(link));
+            }
+        }
+ 
+        function displayError(err) {
+            $("#repos").append($("<li>Error</li>"));
+        }
+    }
+
+    function loadCommits() {
+            $("#commits").empty();
+            let url = "https://api.github.com/repos/" +
+                $("#username").val() + "/" +
+                $("#repo").val() + "/commits";
+
+            $.get(url)
+                .then(displayCommits)
+                .catch(displayError);
+
+            function displayCommits(commits) {
+                for (let commit of commits) {
+                    $("#commits").append($("<li>").text(
+                        commit.commit.author.name + ": " +
+                        commit.commit.message
+                    ));
+                }
+            }
+
+            function displayError(err) {
+                $("#commits").append($("<li>").text(
+                    "Error: " +
+                    err.status + " (" + err.statusText + ")"));
+            }
+        }
+
+</script>
+ 
+</body>
+</html>
